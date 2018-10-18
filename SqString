@@ -1,0 +1,285 @@
+ /*                     Sqstring's open  source  
+3  *   This file should be use for  the Sqstring's base operation 
+4  *   Copyright (C)  2018   DQY  
+5  *   email: 2650822367@qq.com  
+6  *   Please follow  the  law of  China. 
+7 */ 
+#include<iostream>
+#define OK 1
+#define ERROR 0
+#define MAX_String_SIZE  100
+#define status int 
+using namespace std;
+
+typedef struct SqString
+{
+	char String[MAX_String_SIZE + 1];//define the maxsize
+	int length;
+}SqString,*NodeString;
+
+status StrAssign(NodeString &, char []);//use the chars to init the string
+status StrCopy(NodeString &, char []);//copy
+status Strempty(NodeString);//判断串是否为空
+status StrCompare(NodeString &, NodeString &);//串比较
+int Strlength(NodeString &);//求串的长度
+status ClearString(NodeString &);//清空串
+status Concat(NodeString &, NodeString , NodeString );//链接求新的串
+status SubString(NodeString &, NodeString &, int, int);//返回某一个串从某个位置开始，长度为某个数的串
+status Index_BF(NodeString &, NodeString &, int);//找到两个串中相等的子串
+status Replace(NodeString & s, NodeString & T, NodeString & v);//用v替换s中出现的所有和T相等的不重叠子串
+status StrInsert(NodeString &, int, NodeString);//将某个串从某个串的指定位置插入
+status StrDelete(NodeString &, int, int);//从某个串中从指定位置删除指定长度的子串
+status Destroy(NodeString &);//销毁串
+
+status StrAssign(NodeString & s, char t[])
+{
+	
+	s = new SqString;//分配内存空间 
+	if (s == NULL)
+	{
+		cout << "内存分配失败" << endl;
+		return  ERROR;
+
+	}
+	else
+	{
+		int i = 0;
+		s->length = 0;
+		while (t)
+		{
+			s->String[i] = t[i];
+			s->length++;
+			i++;
+		}
+		return OK;
+	}
+}
+
+status StrCopy(NodeString & string, char s[])
+{
+	
+	string=new SqString;
+	if(string==NULL)
+		{
+			cout<<"申请内存失败"<<endl;
+			return ERROR;
+	     }
+	else 
+	{
+		if (s)
+	 {
+		cout << "待拷贝的字符串不为空,copy begin" << endl;
+		int i = 0;
+		while (s[i]!='\0')
+		{
+			string->String[i] = s[i];
+			i++;
+			string->length++;
+		 }
+		return OK;
+	  }
+	     else
+	  {
+		 cout << "待拷贝的字符串为空，不进行拷贝 " << endl;
+		 return ERROR;
+	  }
+	}	
+}
+status Strempty(NodeString s)
+{
+	if(s->length==0||s->String[0]=='\0')
+		{
+			cout<<"串为空"<<endl;
+			return OK;
+	    }
+	else 
+	{
+		cout<<"串不为空"<<endl;
+			return ERROR;
+	}
+}
+int StrCompare(NodeString & s1, NodeString & s2)//相等返回0，
+{
+	int i=0,j=0;
+	
+	while(i<s1->length&&s1->String[i]!='\0')
+		{
+			if(s1->String[i]-s2->String[i]==0)//相等继续比较
+			{
+				i++;
+			}
+			else//不等返回
+			{
+				j=s1->String[i]-s2->String[i];
+				break;
+			}
+		}
+		if(i>s1->length)
+			return j=0;//相等则返回0
+		else 
+			return j;//不相等则返回最后比较位置的两个元素的差值			
+}
+int Strlength(NodeString & s)
+{
+	return s->length;
+}
+
+
+status ClearString(NodeString &s)
+{
+	s->length=0;
+	return OK;
+}
+status Concat(NodeString & T, NodeString s1 , NodeString s2 )
+{
+	int i=0,j=0;
+	T =new SqString;//申请节点
+	T->length=0;
+	if(T!=NULL&&(s1->length+s2->length<MAX_String_SIZE))
+	{
+		while(i<s1->length&&s1->String[i]!='\0')
+		{
+			T->String[i]=s1->String[i];
+			T->length++;
+			i++;
+		}
+		while(j<s2->length&&s2->String[i]!='\0')
+		{
+			T->String[i+j+1]=s2->String[j];
+			T->length++;
+			j++;
+		}
+		T->String[i+j+1]='\0';//结束标志
+		return OK;
+	}
+	else 
+		return ERROR;
+	}
+
+status SubString(NodeString & sub, NodeString & s, int pos, int i)
+{
+	if (pos<0||pos>s->length||s->length<0||s->length>MAX_String_SIZE)
+	{
+		return ERROR;
+	}
+	else
+	{
+		for (int j=0; i; i--,j++)
+		{
+			sub->String[j] = s->String[pos + i - 1];//字符串拷贝
+		}
+		return OK;
+	}
+}
+status Index_BF(NodeString & s1, NodeString & s2, int pos)
+{
+	int i, j;
+	if (pos<0 || pos>s1->length)
+		exit(0);
+		//return ERROR;
+	else
+	{
+		for (i = pos; i < s1->length; i++)
+		{
+			for (j = 0; j < s2->length; j++)
+			{
+				if (s1->String[i] == s2->String[j])
+				{
+					++i; ++j;
+				}
+				else 
+				{
+					i = i + j - 1;
+					j = 0;
+				}
+			}
+		}
+	}
+	if (j > s2->length)
+		return OK;
+	else
+		cout << "匹配失败\n";
+	return ERROR;
+}
+status Replace(NodeString & s, NodeString & T, NodeString & v)//用v替换s中出现的所有和T相等的不重叠子串
+{
+	int i=0,j=0;
+	while(i<s->length&&j<T->length)
+	{
+		if(s->String[i]==T->String[j])
+		{
+			++i;++j;
+		}
+		else 
+		{
+			s->String[i]=v->String[i];
+		}
+	}
+	if(j>T->length)
+		return OK;
+	else 
+		return ERROR;
+}
+
+status  StrInsert(NodeString & s, int pos, NodeString v )
+{
+	char temp[MAX_String_SIZE+1];
+	int i=pos,j=0,k=0,p;
+	if((v->length+s->length+1)>MAX_String_SIZE||(pos<0&&pos>s->length))
+		return ERROR;
+	else
+	{
+	   while(i<s->length)//复制插入位置以后的数据
+	  {
+		temp[j]=s->String[i+1];
+		j++;
+		i++;
+	  }
+	   temp[j+1]='\0';
+	   while(i=pos&&k<v->length)//从指定位置之后开始插入指定字符串
+	   {
+		   s->String[i]=v->String[k];
+		   s->length++;
+		   i++;
+	   }
+	   while(p=0&&j)//将保存位置之后的字符串重新插入到字符串中
+	   {
+		   s->String[i]=temp[p];
+		   s->length++;
+		   p++;
+		   j--;
+	   }
+	   s->String[i+1]='\0';//结束标志
+	   return OK;
+	}
+}
+
+status StrDelete(NodeString & s, int pos, int i)
+{
+	int t=pos;
+	if(pos<0||pos>s->length)
+		return ERROR;
+	else 
+	{
+		while(t<s->length)
+		{
+			s->String[t+1]=s->String[t+i];
+			t++;			
+		}
+		s->length-=2;
+		s->String[t+1]='\0';
+		return OK;
+	}
+}
+
+status Destroy(NodeString &s)
+{
+	delete []s->String;
+	return OK;
+}
+
+void main()
+{
+	cin.get();
+}
+
